@@ -22,6 +22,9 @@ const Home = () => {
               <h1 className="text-6xl font-bold text-gray-900">
                 EquiFlow
               </h1>
+              <p className="text-xl text-indigo-600 font-medium">
+                Alternative à Tricount, entièrement gratuite et illimitée
+              </p>
               <p className="text-2xl text-gray-600">
                 Gérez vos dépenses de groupe en toute simplicité
               </p>
