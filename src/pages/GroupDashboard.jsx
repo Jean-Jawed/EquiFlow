@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, getDoc, collection, onSnapshot } from 'firebase/firestore';
 import ExpenseList from '../components/expenses/ExpenseList';
@@ -91,11 +91,16 @@ const GroupDashboard = () => {
       <header className="bg-white shadow-sm sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{group.name}</h1>
-              {group.description && (
-                <p className="text-sm text-gray-600">{group.description}</p>
-              )}
+            <div className="flex items-center gap-4">
+              <Link to="/" title="Retour à l'accueil" className="flex-shrink-0 transition-transform hover:scale-105">
+                <img src="/logo_equiflow.jpg" alt="EquiFlow Logo" className="w-12 h-12 rounded-xl shadow-sm border border-gray-100" />
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{group.name}</h1>
+                {group.description && (
+                  <p className="text-sm text-gray-600">{group.description}</p>
+                )}
+              </div>
             </div>
             <button
               onClick={() => setShowShareModal(true)}
