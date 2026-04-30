@@ -37,7 +37,7 @@ const JoinGroupModal = ({ onClose }) => {
       
       const groupDoc = await getDoc(doc(db, 'groups', groupId));
       
-      if (!groupDoc.exists()) {
+      if (!groupDoc.exists() || groupDoc.data().deleted === true) {
         showToast('Ce groupe n\'existe pas', 'error');
         setLoading(false);
         return;

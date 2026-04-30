@@ -1,37 +1,44 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, getDoc, collection, onSnapshot } from 'firebase/firestore';
+import { doc, collection, onSnapshot, updateDoc } from 'firebase/firestore';
 import ExpenseList from '../components/expenses/ExpenseList';
 import BalanceView from '../components/balances/BalanceView';
 import ParticipantList from '../components/participants/ParticipantList';
 import ShareGroupModal from '../components/groups/ShareGroupModal';
+import EditGroupModal from '../components/groups/EditGroupModal';
 import AddExpenseModal from '../components/expenses/AddExpenseModal';
 import Footer from '../components/layout/Footer';
+import { showToast } from '../utils/toast';
 
 const GroupDashboard = () => {
   const { groupId } = useParams();
+  const navigate = useNavigate();
   const [group, setGroup] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [activeTab, setActiveTab] = useState('expenses');
   const [showShareModal, setShowShareModal] = useState(false);
   const [showAddExpense, setShowAddExpense] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const menuRef = useRef(null);
 
   useEffect(() => {
-    const loadGroup = async () => {
-      try {
-        const groupDoc = await getDoc(doc(db, 'groups', groupId));
-        if (groupDoc.exists()) {
-          setGroup({ id: groupDoc.id, ...groupDoc.data() });
-        }
-      } catch (error) {
-        console.error('Error loading group:', error);
+    const unsubGroup = onSnapshot(doc(db, 'groups', groupId), (groupDoc) => {
+      if (!groupDoc.exists() || groupDoc.data().deleted === true) {
+        setGroup(null);
+      } else {
+        setGroup({ id: groupDoc.id, ...groupDoc.data() });
       }
-    };
+    }, (error) => {
+      console.error('Error loading group:', error);
+    });
 
-    loadGroup();
+    return () => unsubGroup();
   }, [groupId]);
 
   useEffect(() => {
@@ -69,6 +76,29 @@ const GroupDashboard = () => {
     };
   }, [groupId]);
 
+  useEffect(() => {
+    if (!showMenu) return;
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMenu]);
+
+  const handleDeleteGroup = async () => {
+    setDeleting(true);
+    try {
+      await updateDoc(doc(db, 'groups', groupId), { deleted: true });
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting group:', error);
+      showToast('Erreur lors de la suppression', 'error');
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -102,12 +132,39 @@ const GroupDashboard = () => {
                 )}
               </div>
             </div>
-            <button
-              onClick={() => setShowShareModal(true)}
-              className="btn-3d-secondary text-sm"
-            >
-              📤 Partager
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowShareModal(true)}
+                className="btn-3d-secondary text-sm"
+              >
+                📤 Partager
+              </button>
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setShowMenu(prev => !prev)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 text-xl leading-none"
+                  title="Plus d'options"
+                >
+                  ⋮
+                </button>
+                {showMenu && (
+                  <div className="absolute right-0 top-full mt-1 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                    <button
+                      onClick={() => { setShowEditModal(true); setShowMenu(false); }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      ✏️ Modifier le groupe
+                    </button>
+                    <button
+                      onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      🗑️ Supprimer le groupe
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -138,15 +195,15 @@ const GroupDashboard = () => {
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 py-6 mb-20">
         {activeTab === 'expenses' && (
-          <ExpenseList 
-            expenses={expenses} 
+          <ExpenseList
+            expenses={expenses}
             participants={participants}
             currency={group.currency}
             groupId={groupId}
           />
         )}
         {activeTab === 'balances' && (
-          <BalanceView 
+          <BalanceView
             participants={participants}
             expenses={expenses}
             currency={group.currency}
@@ -154,7 +211,7 @@ const GroupDashboard = () => {
           />
         )}
         {activeTab === 'participants' && (
-          <ParticipantList 
+          <ParticipantList
             participants={participants}
             groupId={groupId}
             expenses={expenses}
@@ -190,6 +247,40 @@ const GroupDashboard = () => {
           participants={participants}
           currency={group.currency}
         />
+      )}
+
+      {showEditModal && (
+        <EditGroupModal
+          onClose={() => setShowEditModal(false)}
+          group={group}
+        />
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Supprimer le groupe</h2>
+            <p className="text-gray-600 text-sm mb-6">
+              Cette action est irréversible. Le groupe et toutes ses données ne seront plus accessibles.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+                className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDeleteGroup}
+                disabled={deleting}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition-colors disabled:opacity-60"
+              >
+                {deleting ? 'Suppression...' : 'Supprimer'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
