@@ -6,13 +6,13 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 w-full flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
         <div>
           © EquiFlow 2025, Website by{' '}
-          <a 
-            href="https://javed.fr" 
-            target="_blank" 
+          <a
+            href="https://virgule-studio.fr"
+            target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline font-medium"
           >
-            Jawed
+            Virgule-Studio Marseille
           </a>
         </div>
         <div className="flex gap-6">
