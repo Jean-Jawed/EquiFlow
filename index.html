@@ -6,17 +6,332 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="canonical" href="https://equiflow.fr/" />
+
+  <title>EquiFlow – Alternative gratuite à Tricount pour vos dépenses partagées</title>
+  <meta name="description" content="Gérez vos dépenses de groupe en toute simplicité. EquiFlow est l'alternative gratuite et illimitée à Tricount. Sans inscription, accessible depuis n'importe quel appareil." />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://equiflow.fr/" />
+  <meta property="og:title" content="EquiFlow – Alternative gratuite à Tricount" />
+  <meta property="og:description" content="Gérez vos dépenses de groupe en toute simplicité. Gratuit, illimité, sans inscription." />
+  <meta property="og:image" content="https://equiflow.fr/logo_equiflow.jpg" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="EquiFlow – Alternative gratuite à Tricount" />
+  <meta name="twitter:description" content="Gérez vos dépenses de groupe en toute simplicité. Gratuit, illimité, sans inscription." />
+  <meta name="twitter:image" content="https://equiflow.fr/logo_equiflow.jpg" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-  <title>EquiFlow - Gestion de dépenses partagées</title>
+
+  <link rel="stylesheet" href="/src/styles/global.css" />
 </head>
 
 <body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
+  <div class="min-h-screen flex flex-col">
+
+    <main class="flex-1 flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-12">
+
+        <section class="text-center lg:text-left space-y-8">
+          <div class="space-y-4">
+            <img
+              src="/logo_equiflow.jpg"
+              alt="EquiFlow Logo"
+              class="h-24 mx-auto lg:mx-0 rounded-2xl shadow-lg"
+            />
+            <h1 class="text-6xl font-bold text-gray-900">EquiFlow</h1>
+            <p class="text-xl text-indigo-600 font-medium">Alternative à Tricount, entièrement gratuite et illimitée</p>
+            <p class="text-2xl text-gray-600">Gérez vos dépenses de groupe en toute simplicité</p>
+          </div>
+
+          <div class="space-y-4">
+            <button id="btn-create" class="btn-3d-primary w-full lg:w-auto px-12">
+              Créer un groupe
+            </button>
+            <button id="btn-join" class="btn-3d-secondary w-full lg:w-auto px-12 lg:ml-4">
+              Rejoindre un groupe
+            </button>
+          </div>
+
+          <div class="pt-2">
+            <a href="/application" class="inline-flex items-center text-primary font-medium hover:text-indigo-700 transition-colors gap-2">
+              <span class="text-xl">📱</span> Découvrez notre nouvelle application Android &rarr;
+            </a>
+          </div>
+
+          <p class="text-sm text-gray-500">Partagez vos frais facilement entre amis, famille ou collègues</p>
+        </section>
+
+        <div class="hidden lg:block">
+          <img
+            src="/conversation.png"
+            alt="Conversation illustration"
+            class="w-full h-auto rounded-2xl shadow-2xl"
+          />
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="py-8 border-t border-gray-200 mt-12 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 w-full flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+        <div>
+          © EquiFlow 2025, Website by
+          <a href="https://javed.fr" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline font-medium">Jawed</a>
+        </div>
+        <nav class="flex gap-6">
+          <a href="/" class="hover:text-primary transition-colors">Accueil</a>
+          <a href="/application" class="hover:text-primary transition-colors">L'App Android</a>
+          <a href="/confidentialite" class="hover:text-primary transition-colors">Confidentialité</a>
+        </nav>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Modal : Créer un groupe -->
+  <div id="create-modal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
+    <div class="modal-content" role="document">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 id="create-modal-title" class="text-2xl font-bold text-gray-900">Créer un nouveau groupe</h2>
+          <button id="close-create" class="text-gray-400 hover:text-gray-600 text-2xl font-bold w-8 h-8 flex items-center justify-center" aria-label="Fermer">×</button>
+        </div>
+        <form id="create-form" class="space-y-4" novalidate>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="group-name">
+              Nom du groupe <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="group-name"
+              placeholder="Vacances Barcelone"
+              maxlength="60"
+              class="w-full"
+              autocomplete="off"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="group-description">
+              Description (optionnel)
+            </label>
+            <textarea
+              id="group-description"
+              placeholder="Décrivez votre groupe..."
+              maxlength="200"
+              rows="3"
+              class="w-full"
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-1"><span id="desc-counter">0</span>/200</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="group-currency">
+              Devise
+            </label>
+            <select id="group-currency" class="w-full">
+              <option value="EUR">€ EUR</option>
+              <option value="USD">$ USD</option>
+              <option value="GBP">£ GBP</option>
+              <option value="CHF">CHF</option>
+              <option value="CAD">$ CAD</option>
+            </select>
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button type="button" id="cancel-create" class="btn-3d-secondary flex-1">Annuler</button>
+            <button type="submit" id="create-submit" class="btn-3d-primary flex-1">Créer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal : Rejoindre un groupe -->
+  <div id="join-modal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="join-modal-title">
+    <div class="modal-content" role="document">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 id="join-modal-title" class="text-2xl font-bold text-gray-900">Rejoindre un groupe</h2>
+          <button id="close-join" class="text-gray-400 hover:text-gray-600 text-2xl font-bold w-8 h-8 flex items-center justify-center" aria-label="Fermer">×</button>
+        </div>
+        <form id="join-form" class="space-y-4" novalidate>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="group-link">
+              Lien du groupe <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="group-link"
+              placeholder="https://equiflow.fr/group/..."
+              class="w-full"
+              autocomplete="off"
+            />
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button type="button" id="cancel-join" class="btn-3d-secondary flex-1">Annuler</button>
+            <button type="submit" id="join-submit" class="btn-3d-primary flex-1">Accéder au groupe</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" style="display:none" role="status" aria-live="polite"></div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, collection, addDoc, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB7rQCdIWcuGxnfx0yLdxHVQ6WxX1TVTGE",
+      authDomain: "equiflow-2079c.firebaseapp.com",
+      projectId: "equiflow-2079c",
+      storageBucket: "equiflow-2079c.firebasestorage.app",
+      messagingSenderId: "809064770838",
+      appId: "1:809064770838:web:d6cc4e4e938e5a79f2f437",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    signInAnonymously(auth).catch(console.error);
+
+    // --- Toast ---
+    let toastTimer;
+    function showToast(message, type = 'success') {
+      clearTimeout(toastTimer);
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      toast.style.display = 'block';
+      toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    // --- Modals ---
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // Fermeture sur clic du backdrop
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+      el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+    });
+
+    // Fermeture sur Echap
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeModal('create-modal'); closeModal('join-modal'); }
+    });
+
+    // --- Boutons ---
+    document.getElementById('btn-create').addEventListener('click', () => openModal('create-modal'));
+    document.getElementById('btn-join').addEventListener('click', () => openModal('join-modal'));
+    document.getElementById('close-create').addEventListener('click', () => closeModal('create-modal'));
+    document.getElementById('cancel-create').addEventListener('click', () => closeModal('create-modal'));
+    document.getElementById('close-join').addEventListener('click', () => closeModal('join-modal'));
+    document.getElementById('cancel-join').addEventListener('click', () => closeModal('join-modal'));
+
+    // Compteur description
+    document.getElementById('group-description').addEventListener('input', e => {
+      document.getElementById('desc-counter').textContent = e.target.value.length;
+    });
+
+    // --- Créer un groupe ---
+    document.getElementById('create-form').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const name = document.getElementById('group-name').value.trim();
+      const description = document.getElementById('group-description').value.trim();
+      const currency = document.getElementById('group-currency').value;
+
+      if (!name) { showToast('Le nom du groupe est obligatoire', 'error'); return; }
+      if (name.length > 60) { showToast('Le nom ne peut pas dépasser 60 caractères', 'error'); return; }
+      if (description.length > 200) { showToast('La description ne peut pas dépasser 200 caractères', 'error'); return; }
+
+      const btn = document.getElementById('create-submit');
+      btn.textContent = 'Création...';
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      try {
+        const groupRef = await addDoc(collection(db, 'groups'), {
+          name,
+          description,
+          currency,
+          createdAt: serverTimestamp(),
+          createdBy: auth.currentUser?.uid || 'anonymous',
+          deleted: false,
+        });
+
+        const groupId = groupRef.id;
+        const shareLink = `${window.location.origin}/group/${groupId}`;
+        await setDoc(doc(db, 'groups', groupId), { shareLink }, { merge: true });
+
+        showToast('Groupe créé avec succès !', 'success');
+        window.location.href = `/group/${groupId}`;
+      } catch (err) {
+        console.error(err);
+        showToast('Erreur lors de la création du groupe', 'error');
+        btn.textContent = 'Créer';
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    });
+
+    // --- Rejoindre un groupe ---
+    document.getElementById('join-form').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const link = document.getElementById('group-link').value.trim();
+      if (!link) { showToast('Veuillez entrer le lien du groupe', 'error'); return; }
+
+      const btn = document.getElementById('join-submit');
+      btn.textContent = 'Connexion...';
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      try {
+        let groupId;
+        try {
+          const url = new URL(link);
+          const parts = url.pathname.split('/');
+          groupId = parts[parts.length - 1];
+        } catch {
+          const parts = link.split('/');
+          groupId = parts[parts.length - 1];
+        }
+
+        const groupDoc = await getDoc(doc(db, 'groups', groupId));
+
+        if (!groupDoc.exists() || groupDoc.data().deleted === true) {
+          showToast("Ce groupe n'existe pas", 'error');
+          btn.textContent = 'Accéder au groupe';
+          btn.disabled = false;
+          btn.classList.remove('opacity-50', 'cursor-not-allowed');
+          return;
+        }
+
+        showToast('Accès au groupe réussi !', 'success');
+        window.location.href = `/group/${groupId}`;
+      } catch (err) {
+        console.error(err);
+        showToast("Erreur lors de l'accès au groupe", 'error');
+        btn.textContent = 'Accéder au groupe';
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    });
+  </script>
+
   <script
     src="https://websites-monitoring.vercel.app/tracking.js?siteId=equiflow&key=1e76b115b57129b0524f1da0ae6259be"></script>
 </body>

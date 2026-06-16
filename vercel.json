@@ -1,8 +1,7 @@
 {
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/application", "destination": "/application.html" },
+    { "source": "/group/:path*", "destination": "/app.html" },
+    { "source": "/confidentialite", "destination": "/app.html" }
   ]
 }
