@@ -7,6 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="canonical" href="https://equiflow.fr/" />
 
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#3B82F6" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+
   <title>EquiFlow – Alternative gratuite à Tricount pour vos dépenses partagées</title>
   <meta name="description" content="Gérez vos dépenses de groupe simplement. EquiFlow est l'alternative gratuite et illimitée à Tricount. Sans inscription, sans limite, depuis n'importe quel appareil." />
   <meta name="robots" content="index, follow" />
@@ -85,14 +90,23 @@
             </button>
           </div>
 
+          <div id="install-section" class="relative" style="display:none">
+            <button id="btn-install" class="btn-3d-secondary w-full lg:w-auto px-8">
+              📲 Installer l'application
+            </button>
+            <div id="install-ios-tip" class="absolute left-0 top-full mt-1 w-64 bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50 text-sm text-gray-700" style="display:none">
+              Appuyez sur <strong>Partager</strong> puis <strong>« Sur l'écran d'accueil »</strong> pour installer EquiFlow.
+            </div>
+          </div>
+
           <div id="recent-groups-section" class="pt-2" style="display:none">
             <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Groupes récents</h2>
             <ul id="recent-groups-list" class="space-y-2"></ul>
           </div>
 
           <div class="pt-2">
-            <a href="/application" class="inline-flex items-center text-primary font-medium hover:text-indigo-700 transition-colors gap-2">
-              <span class="text-xl">📱</span> Découvrez notre nouvelle application Android &rarr;
+            <a href="/application" class="inline-flex items-center text-sm text-gray-500 hover:text-primary transition-colors gap-1.5">
+              <span>🚀</span> Bientôt disponible sur Google Play et l'App Store
             </a>
           </div>
 
@@ -118,7 +132,7 @@
         </div>
         <nav class="flex gap-6">
           <a href="/" class="hover:text-primary transition-colors">Accueil</a>
-          <a href="/application" class="hover:text-primary transition-colors">L'App Android</a>
+          <a href="/application" class="hover:text-primary transition-colors">Applications mobiles</a>
           <a href="/confidentialite" class="hover:text-primary transition-colors">Confidentialité</a>
         </nav>
       </div>
@@ -221,6 +235,7 @@
     import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
     import { getRecentGroups, remove as removeRecentGroup } from '/src/utils/recentGroups.js';
     import { formatDate } from '/src/utils/formatters.js';
+    import { registerServiceWorker, getInstallState, promptInstall } from '/src/utils/pwaInstall.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyB7rQCdIWcuGxnfx0yLdxHVQ6WxX1TVTGE",
@@ -296,6 +311,29 @@
     }
 
     renderRecentGroups();
+
+    // --- Installation PWA ---
+    registerServiceWorker();
+
+    function renderInstallButton() {
+      const section = document.getElementById('install-section');
+      const state = getInstallState();
+      section.style.display = state === 'available' || state === 'ios' ? 'block' : 'none';
+    }
+
+    document.getElementById('btn-install').addEventListener('click', () => {
+      const state = getInstallState();
+      if (state === 'available') {
+        promptInstall().then(renderInstallButton);
+      } else if (state === 'ios') {
+        const tip = document.getElementById('install-ios-tip');
+        tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+
+    window.addEventListener('beforeinstallprompt', renderInstallButton);
+    window.addEventListener('appinstalled', renderInstallButton);
+    renderInstallButton();
 
     // --- Modals ---
     function openModal(id) {

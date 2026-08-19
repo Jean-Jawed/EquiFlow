@@ -17,7 +17,7 @@ const Footer = () => {
         </div>
         <div className="flex gap-6">
           <Link to="/" className="hover:text-primary transition-colors">Accueil</Link>
-          <Link to="/application" className="hover:text-primary transition-colors">L'App Android</Link>
+          <Link to="/application" className="hover:text-primary transition-colors">Applications mobiles</Link>
           <Link to="/confidentialite" className="hover:text-primary transition-colors">Confidentialité</Link>
         </div>
       </div>

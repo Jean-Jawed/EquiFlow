@@ -1,7 +1,20 @@
+import { useState } from 'react';
 import Footer from '../components/layout/Footer';
 import { Link } from 'react-router-dom';
+import { usePwaInstall, promptInstall } from '../utils/pwaInstall';
 
 const Application = () => {
+  const installState = usePwaInstall();
+  const [showIosTip, setShowIosTip] = useState(false);
+
+  const handleInstallClick = () => {
+    if (installState === 'available') {
+      promptInstall();
+    } else if (installState === 'ios') {
+      setShowIosTip((prev) => !prev);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header court */}
@@ -17,10 +30,10 @@ const Application = () => {
         {/* Left: Text */}
         <div className="flex-1 space-y-6 text-center md:text-left">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-            Emportez <span className="text-primary">EquiFlow</span> partout avec vous
+            <span className="text-primary">EquiFlow</span> s'installe dès maintenant
           </h1>
           <p className="text-xl text-gray-600">
-            Retrouvez exactement la même expérience et toutes les fonctionnalités du site web dans notre application native Android.
+            Depuis votre navigateur, ajoutez EquiFlow à votre écran d'accueil : une icône, un lancement en plein écran, comme une vraie application.
           </p>
           <ul className="text-left max-w-sm mx-auto md:mx-0 space-y-4 text-gray-700">
             <li className="flex items-center gap-3">
@@ -33,13 +46,37 @@ const Application = () => {
             </li>
             <li className="flex items-center gap-3">
               <span className="text-green-500 text-xl">✓</span>
-              Partage facile depuis votre répertoire
+              Fonctionne aussi hors connexion
             </li>
           </ul>
-          <div className="pt-6 flex justify-center md:justify-start">
-            <a href="#" className="inline-block transition-transform hover:scale-105">
-              <img src="/fr_badge_web_generic.png" alt="Disponible sur Google Play" className="h-16" />
-            </a>
+
+          <div className="pt-2">
+            {(installState === 'available' || installState === 'ios') && (
+              <div className="relative inline-block">
+                <button onClick={handleInstallClick} className="btn-3d-primary px-10">
+                  📲 Installer l'application
+                </button>
+                {showIosTip && (
+                  <div className="absolute left-0 top-full mt-1 w-64 bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50 text-sm text-gray-700 text-left">
+                    Appuyez sur <strong>Partager</strong> puis <strong>« Sur l'écran d'accueil »</strong> pour installer EquiFlow.
+                  </div>
+                )}
+              </div>
+            )}
+            {installState === 'installed' && (
+              <p className="text-green-600 font-medium">✓ EquiFlow est déjà installé sur cet appareil</p>
+            )}
+            {installState === 'unsupported' && (
+              <p className="text-gray-500 text-sm">L'installation n'est pas prise en charge par ce navigateur. Essayez avec Chrome, Edge, ou Safari sur mobile.</p>
+            )}
+          </div>
+
+          <div className="pt-10 border-t border-gray-200">
+            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Bientôt disponible sur les stores</p>
+            <div className="flex items-center justify-center md:justify-start gap-4">
+              <img src="/bientot-googleplay.png" alt="Bientôt disponible sur Google Play" className="h-11 w-auto" />
+              <img src="/bientot-appstore.png" alt="Bientôt disponible sur l'App Store" className="h-11 w-auto" />
+            </div>
           </div>
         </div>
 

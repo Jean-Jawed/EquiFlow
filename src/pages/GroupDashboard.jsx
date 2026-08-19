@@ -7,6 +7,7 @@ import BalanceView from '../components/balances/BalanceView';
 import ParticipantList from '../components/participants/ParticipantList';
 import ShareGroupModal from '../components/groups/ShareGroupModal';
 import EditGroupModal from '../components/groups/EditGroupModal';
+import InstallButton from '../components/pwa/InstallButton';
 import AddExpenseModal from '../components/expenses/AddExpenseModal';
 import Footer from '../components/layout/Footer';
 import { showToast } from '../utils/toast';
@@ -142,6 +143,7 @@ const GroupDashboard = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <InstallButton />
               <button
                 onClick={() => setShowShareModal(true)}
                 className="btn-3d-secondary text-sm"

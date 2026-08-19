@@ -53,9 +53,9 @@ const Home = () => {
             <div className="pt-2">
               <Link
                 to="/application"
-                className="inline-flex items-center text-primary font-medium hover:text-indigo-700 transition-colors gap-2"
+                className="inline-flex items-center text-sm text-gray-500 hover:text-primary transition-colors gap-1.5"
               >
-                <span className="text-xl">📱</span> Découvrez notre nouvelle application Android &rarr;
+                <span>🚀</span> Bientôt disponible sur Google Play et l'App Store
               </Link>
             </div>
 

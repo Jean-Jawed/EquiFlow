@@ -7,18 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="canonical" href="https://equiflow.fr/application" />
 
-  <title>Application Android EquiFlow – Gérez vos dépenses en déplacement</title>
-  <meta name="description" content="Téléchargez l'app Android EquiFlow. Toutes les fonctionnalités du site dans votre poche. Alternative gratuite à Tricount, sans publicité, sans inscription." />
+  <title>Installer EquiFlow – Application installable, bientôt sur les stores</title>
+  <meta name="description" content="EquiFlow s'installe directement depuis votre navigateur, comme une vraie application. Bientôt disponible aussi sur Google Play et l'App Store." />
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://equiflow.fr/application" />
-  <meta property="og:title" content="Application Android EquiFlow – Dépenses partagées sur mobile" />
-  <meta property="og:description" content="Téléchargez l'app Android EquiFlow. Alternative gratuite à Tricount, sans publicité, sans inscription." />
+  <meta property="og:title" content="Installer EquiFlow – Application installable, bientôt sur les stores" />
+  <meta property="og:description" content="EquiFlow s'installe directement depuis votre navigateur, comme une vraie application. Bientôt disponible aussi sur Google Play et l'App Store." />
   <meta property="og:image" content="https://equiflow.fr/logo_equiflow.jpg" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Application Android EquiFlow – Dépenses partagées sur mobile" />
-  <meta name="twitter:description" content="Téléchargez l'app Android EquiFlow. Alternative gratuite à Tricount, sans publicité, sans inscription." />
+  <meta name="twitter:title" content="Installer EquiFlow – Application installable, bientôt sur les stores" />
+  <meta name="twitter:description" content="EquiFlow s'installe directement depuis votre navigateur, comme une vraie application. Bientôt disponible aussi sur Google Play et l'App Store." />
   <meta name="twitter:image" content="https://equiflow.fr/logo_equiflow.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,6 +28,11 @@
     rel="stylesheet">
 
   <link rel="stylesheet" href="/src/styles/global.css" />
+
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#3B82F6" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
 </head>
 
 <body>
@@ -45,10 +50,10 @@
 
       <section class="flex-1 space-y-6 text-center md:text-left">
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-          Emportez <span class="text-primary">EquiFlow</span> partout avec vous
+          <span class="text-primary">EquiFlow</span> s'installe dès maintenant
         </h1>
         <p class="text-xl text-gray-600">
-          Retrouvez exactement la même expérience et toutes les fonctionnalités du site web dans notre application native Android.
+          Depuis votre navigateur, ajoutez EquiFlow à votre écran d'accueil : une icône, un lancement en plein écran, comme une vraie application.
         </p>
         <ul class="text-left max-w-sm mx-auto md:mx-0 space-y-4 text-gray-700">
           <li class="flex items-center gap-3">
@@ -61,13 +66,29 @@
           </li>
           <li class="flex items-center gap-3">
             <span class="text-green-500 text-xl">✓</span>
-            Partage facile depuis votre répertoire
+            Fonctionne aussi hors connexion
           </li>
         </ul>
-        <div class="pt-6 flex justify-center md:justify-start">
-          <a href="#" class="inline-block transition-transform hover:scale-105">
-            <img src="/fr_badge_web_generic.png" alt="Disponible sur Google Play" class="h-16" />
-          </a>
+
+        <div class="pt-2">
+          <div id="install-cta" class="relative inline-block" style="display:none">
+            <button id="btn-install" class="btn-3d-primary px-10">
+              📲 Installer l'application
+            </button>
+            <div id="install-ios-tip" class="absolute left-0 top-full mt-1 w-64 bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50 text-sm text-gray-700 text-left" style="display:none">
+              Appuyez sur <strong>Partager</strong> puis <strong>« Sur l'écran d'accueil »</strong> pour installer EquiFlow.
+            </div>
+          </div>
+          <p id="install-installed" class="text-green-600 font-medium" style="display:none">✓ EquiFlow est déjà installé sur cet appareil</p>
+          <p id="install-unsupported" class="text-gray-500 text-sm" style="display:none">L'installation n'est pas prise en charge par ce navigateur. Essayez avec Chrome, Edge, ou Safari sur mobile.</p>
+        </div>
+
+        <div class="pt-10 border-t border-gray-200">
+          <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Bientôt disponible sur les stores</p>
+          <div class="flex items-center justify-center md:justify-start gap-4">
+            <img src="/bientot-googleplay.png" alt="Bientôt disponible sur Google Play" class="h-11 w-auto" />
+            <img src="/bientot-appstore.png" alt="Bientôt disponible sur l'App Store" class="h-11 w-auto" />
+          </div>
         </div>
       </section>
 
@@ -92,13 +113,40 @@
         </div>
         <nav class="flex gap-6">
           <a href="/" class="hover:text-primary transition-colors">Accueil</a>
-          <a href="/application" class="hover:text-primary transition-colors">L'App Android</a>
+          <a href="/application" class="hover:text-primary transition-colors">Applications mobiles</a>
           <a href="/confidentialite" class="hover:text-primary transition-colors">Confidentialité</a>
         </nav>
       </div>
     </footer>
 
   </div>
+
+  <script type="module">
+    import { registerServiceWorker, getInstallState, promptInstall } from '/src/utils/pwaInstall.js';
+
+    registerServiceWorker();
+
+    function renderInstallState() {
+      const state = getInstallState();
+      document.getElementById('install-cta').style.display = state === 'available' || state === 'ios' ? 'inline-block' : 'none';
+      document.getElementById('install-installed').style.display = state === 'installed' ? 'block' : 'none';
+      document.getElementById('install-unsupported').style.display = state === 'unsupported' ? 'block' : 'none';
+    }
+
+    document.getElementById('btn-install').addEventListener('click', () => {
+      const state = getInstallState();
+      if (state === 'available') {
+        promptInstall().then(renderInstallState);
+      } else if (state === 'ios') {
+        const tip = document.getElementById('install-ios-tip');
+        tip.style.display = tip.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+
+    window.addEventListener('beforeinstallprompt', renderInstallState);
+    window.addEventListener('appinstalled', renderInstallState);
+    renderInstallState();
+  </script>
 
   <script
     src="https://websites-monitoring.vercel.app/tracking.js?siteId=equiflow&key=1e76b115b57129b0524f1da0ae6259be"></script>
