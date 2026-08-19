@@ -10,6 +10,7 @@ import EditGroupModal from '../components/groups/EditGroupModal';
 import AddExpenseModal from '../components/expenses/AddExpenseModal';
 import Footer from '../components/layout/Footer';
 import { showToast } from '../utils/toast';
+import { addOrUpdate, remove as removeRecentGroup } from '../utils/recentGroups';
 
 const GroupDashboard = () => {
   const { groupId } = useParams();
@@ -28,11 +29,18 @@ const GroupDashboard = () => {
   const menuRef = useRef(null);
 
   useEffect(() => {
+    let recorded = false;
+
     const unsubGroup = onSnapshot(doc(db, 'groups', groupId), (groupDoc) => {
       if (!groupDoc.exists() || groupDoc.data().deleted === true) {
         setGroup(null);
       } else {
-        setGroup({ id: groupDoc.id, ...groupDoc.data() });
+        const data = groupDoc.data();
+        setGroup({ id: groupDoc.id, ...data });
+        if (!recorded) {
+          addOrUpdate(groupDoc.id, data.name);
+          recorded = true;
+        }
       }
     }, (error) => {
       console.error('Error loading group:', error);
@@ -91,6 +99,7 @@ const GroupDashboard = () => {
     setDeleting(true);
     try {
       await updateDoc(doc(db, 'groups', groupId), { deleted: true });
+      removeRecentGroup(groupId);
       navigate('/');
     } catch (error) {
       console.error('Error deleting group:', error);

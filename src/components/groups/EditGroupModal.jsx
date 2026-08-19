@@ -5,6 +5,7 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { showToast } from '../../utils/toast';
+import { addOrUpdate } from '../../utils/recentGroups';
 
 const EditGroupModal = ({ onClose, group }) => {
   const [name, setName] = useState(group.name);
@@ -35,6 +36,7 @@ const EditGroupModal = ({ onClose, group }) => {
         name: name.trim(),
         description: description.trim(),
       });
+      addOrUpdate(group.id, name.trim());
       showToast('Groupe modifié avec succès !', 'success');
       onClose();
     } catch (error) {

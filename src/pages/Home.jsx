@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CreateGroupModal from '../components/groups/CreateGroupModal';
 import JoinGroupModal from '../components/groups/JoinGroupModal';
+import RecentGroupsList from '../components/groups/RecentGroupsList';
 import Footer from '../components/layout/Footer';
 
 const Home = () => {
@@ -47,9 +48,11 @@ const Home = () => {
               </button>
             </div>
 
+            <RecentGroupsList />
+
             <div className="pt-2">
-              <Link 
-                to="/application" 
+              <Link
+                to="/application"
                 className="inline-flex items-center text-primary font-medium hover:text-indigo-700 transition-colors gap-2"
               >
                 <span className="text-xl">📱</span> Découvrez notre nouvelle application Android &rarr;

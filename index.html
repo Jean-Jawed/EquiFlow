@@ -85,6 +85,11 @@
             </button>
           </div>
 
+          <div id="recent-groups-section" class="pt-2" style="display:none">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Groupes récents</h2>
+            <ul id="recent-groups-list" class="space-y-2"></ul>
+          </div>
+
           <div class="pt-2">
             <a href="/application" class="inline-flex items-center text-primary font-medium hover:text-indigo-700 transition-colors gap-2">
               <span class="text-xl">📱</span> Découvrez notre nouvelle application Android &rarr;
@@ -214,6 +219,8 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
     import { getFirestore, collection, addDoc, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
     import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getRecentGroups, remove as removeRecentGroup } from '/src/utils/recentGroups.js';
+    import { formatDate } from '/src/utils/formatters.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyB7rQCdIWcuGxnfx0yLdxHVQ6WxX1TVTGE",
@@ -239,6 +246,56 @@
       toast.style.display = 'block';
       toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }
+
+    // --- Groupes récents ---
+    function renderRecentGroups() {
+      const groups = getRecentGroups();
+      const section = document.getElementById('recent-groups-section');
+      const list = document.getElementById('recent-groups-list');
+
+      if (groups.length === 0) {
+        section.style.display = 'none';
+        return;
+      }
+
+      list.innerHTML = '';
+      groups.forEach(group => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between gap-2 bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-2.5';
+
+        const link = document.createElement('a');
+        link.href = `/group/${group.id}`;
+        link.className = 'flex-1 min-w-0 flex items-baseline gap-2 text-left';
+
+        const name = document.createElement('span');
+        name.className = 'font-medium text-gray-900 truncate';
+        name.textContent = group.name;
+
+        const date = document.createElement('span');
+        date.className = 'text-xs text-gray-400 flex-shrink-0';
+        date.textContent = formatDate(group.lastVisitedAt);
+
+        link.append(name, date);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'flex-shrink-0 text-gray-400 hover:text-gray-600 text-lg leading-none px-1';
+        removeBtn.title = 'Retirer de la liste';
+        removeBtn.setAttribute('aria-label', `Retirer ${group.name} des groupes récents`);
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', () => {
+          removeRecentGroup(group.id);
+          renderRecentGroups();
+        });
+
+        li.append(link, removeBtn);
+        list.appendChild(li);
+      });
+
+      section.style.display = 'block';
+    }
+
+    renderRecentGroups();
 
     // --- Modals ---
     function openModal(id) {
